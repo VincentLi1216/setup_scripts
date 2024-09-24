@@ -45,7 +45,7 @@ fi
 if [ -f "$CONFIG_DIR/aliases" ]; then
   echo "Appending aliases from $CONFIG_DIR to ~/.zshrc..."
   cat "$CONFIG_DIR/aliases" >> ~/.zshrc
-  source ~/.bashrc
+  source ~/.zshrc
 else
   echo "$CONFIG_DIR/aliases does not exist."
 fi
