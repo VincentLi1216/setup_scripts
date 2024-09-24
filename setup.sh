@@ -3,6 +3,8 @@
 # 定義你的配置檔案目錄為當前目錄
 CONFIG_DIR=./
 
+chmod +x setup-zsh.sh setup-oh-my-zsh.sh setup-p10k.sh
+
 # 更新系統並安裝必要套件
 echo "Updating system and installing necessary packages..."
 sudo apt update && sudo apt upgrade -y

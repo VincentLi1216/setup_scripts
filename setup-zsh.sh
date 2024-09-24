@@ -27,6 +27,8 @@ fi
 
 # 設置 Zsh 為預設的 shell
 echo "Setting Zsh as the default shell..."
+echo 'exec zsh' >> ~/.bashrc
+echo 'exec zsh' >> ~/.bash_profile
 chsh -s $(which zsh)
 
 # 如果無法自動切換到 zsh，手動修改 ~/.bashrc 或 ~/.bash_profile
@@ -37,6 +39,15 @@ if [[ "$SHELL" != "$(which zsh)" ]]; then
   echo "Please restart your terminal or source ~/.bashrc to apply changes."
 else
   echo "Zsh is now the default shell."
+fi
+
+# 檢查並複製別名設定
+if [ -f "$CONFIG_DIR/aliases" ]; then
+  echo "Appending aliases from $CONFIG_DIR to ~/.zshrc..."
+  cat "$CONFIG_DIR/aliases" >> ~/.zshrc
+  source ~/.bashrc
+else
+  echo "$CONFIG_DIR/aliases does not exist."
 fi
 
 
