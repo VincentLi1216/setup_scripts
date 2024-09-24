@@ -36,7 +36,7 @@ sh setup-p10k.sh
 ### Auto Generated SSH-KEY
 `setup.zsh` will detect whether the ssh-key exists or not, if not then automatically generate it.
 
-# Install
+# Installation
 ## Step 1
 Cloning the project
 ```shell
