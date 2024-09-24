@@ -1,3 +1,5 @@
+#!/bin/zsh
+
 # 設置 Oh My Zsh 主題
 echo "Setting Zsh theme to 'jonathan'..."
 sed -i 's/ZSH_THEME=".*"/ZSH_THEME="jonathan"/' ~/.zshrc
@@ -20,3 +22,4 @@ fi
 
 # 通知重啟 Zsh 以應用更改
 echo "Zsh setup complete! Please restart your terminal or run 'exec zsh' to apply changes."
+exec zsh
