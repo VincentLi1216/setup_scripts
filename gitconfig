@@ -1,0 +1,16 @@
+[user]
+  name = VincentLi1216
+  email = sunnus.tw@gmail.com
+
+[checkout]
+  defaultRemote = origin
+
+[init] 
+  default = branch default = branch default = branch defaultBranch = main
+
+[alias]
+  ac = !git add -A && git commit 
+  co = checkout 
+  lg = log --color --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit 
+  last = reset —hard HEAD^ 
+  rs = reset —hard
