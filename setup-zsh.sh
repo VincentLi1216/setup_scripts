@@ -50,4 +50,7 @@ else
   echo "$CONFIG_DIR/aliases does not exist."
 fi
 
-
+# support vim in Terminal
+bindkey -v
+export KEYTIMEOUT=1
+bindkey '^V' edit-command-line
