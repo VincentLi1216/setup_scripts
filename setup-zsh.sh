@@ -1,56 +1,93 @@
 #!/bin/bash
 
-# 更新系統並安裝 zsh
-echo "Updating system and installing Zsh..."
-sudo apt-get update
-sudo apt-get install -y zsh
+set -e  # 遇到錯誤就停止腳本
 
-# 檢查 Zsh 是否成功安裝
-if ! command -v zsh >/dev/null 2>&1; then
-  echo "Error: Zsh is not installed. Please check the installation process."
-  exit 1
+echo "🔍 Detecting OS and installing Zsh..."
+
+# 自動偵測系統
+if [ "$(uname)" == "Darwin" ]; then
+    OS="mac"
+elif [ -f /etc/alpine-release ]; then
+    OS="alpine"
+elif [ -f /etc/debian_version ]; then
+    OS="debian"
+else
+    echo "❌ Unsupported OS."
+    exit 1
 fi
+
+# 根據系統安裝 zsh
+case "$OS" in
+    mac)
+        if ! command -v brew >/dev/null 2>&1; then
+            echo "Installing Homebrew first..."
+            /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+        fi
+        brew install zsh
+        ;;
+    debian)
+        sudo apt-get update
+        sudo apt-get install -y zsh curl git
+        ;;
+    alpine)
+        sudo apk update
+        sudo apk add zsh curl git
+        ;;
+esac
+
+# 確認 zsh 安裝成功
+if ! command -v zsh >/dev/null 2>&1; then
+    echo "❌ Error: Zsh installation failed."
+    exit 1
+fi
+
+echo "✅ Zsh installed successfully."
 
 # 查看可用的 shell
 echo "Available shells:"
 cat /etc/shells
 
 # 安裝 Oh My Zsh
-echo "Installing Oh My Zsh..."
-sh -c "$(curl -fsSL https://raw.github.com/robbyrussell/oh-my-zsh/master/tools/install.sh)"
-
-# 檢查是否成功生成 ~/.zshrc
-if [ ! -f ~/.zshrc ]; then
-  echo "~/.zshrc file not found. Creating a new one..."
-  touch ~/.zshrc
-fi
-
-# 設置 Zsh 為預設的 shell
-echo "Setting Zsh as the default shell..."
-echo 'exec zsh' >> ~/.bashrc
-echo 'exec zsh' >> ~/.bash_profile
-chsh -s $(which zsh)
-
-# 如果無法自動切換到 zsh，手動修改 ~/.bashrc 或 ~/.bash_profile
-if [[ "$SHELL" != "$(which zsh)" ]]; then
-  echo "Modifying ~/.bashrc or ~/.bash_profile to set Zsh as the default shell..."
-  echo 'exec zsh' >> ~/.bashrc
-  echo 'exec zsh' >> ~/.bash_profile
-  echo "Please restart your terminal or source ~/.bashrc to apply changes."
+if [ ! -d "$HOME/.oh-my-zsh" ]; then
+    echo "🎉 Installing Oh My Zsh..."
+    export RUNZSH=no
+    export CHSH=no
+    sh -c "$(curl -fsSL https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
 else
-  echo "Zsh is now the default shell."
+    echo "✅ Oh My Zsh already installed."
 fi
 
-# 檢查並複製別名設定
-if [ -f "$CONFIG_DIR/aliases" ]; then
-  echo "Appending aliases from $CONFIG_DIR to ~/.zshrc..."
-  cat "$CONFIG_DIR/aliases" >> ~/.zshrc
-  source ~/.zshrc
+# 確保 ~/.zshrc 存在
+if [ ! -f "$HOME/.zshrc" ]; then
+    echo "Creating new ~/.zshrc..."
+    touch "$HOME/.zshrc"
+fi
+
+# 設定 Zsh 為預設 shell
+CURRENT_SHELL=$(basename "$SHELL")
+if [ "$CURRENT_SHELL" != "zsh" ]; then
+    echo "🔧 Setting Zsh as default shell..."
+    chsh -s "$(which zsh)"
 else
-  echo "$CONFIG_DIR/aliases does not exist."
+    echo "✅ Zsh is already the default shell."
 fi
 
-# support vim in Terminal
-bindkey -v
-export KEYTIMEOUT=1
-bindkey '^V' edit-command-line
+# 複製別名設定
+if [ -n "$CONFIG_DIR" ] && [ -f "$CONFIG_DIR/aliases" ]; then
+    echo "🔗 Appending aliases from $CONFIG_DIR/aliases to ~/.zshrc..."
+    cat "$CONFIG_DIR/aliases" >> "$HOME/.zshrc"
+else
+    echo "⚠️ CONFIG_DIR is not set or aliases file does not exist. Skipping alias setup."
+fi
+
+# 支援 vim 模式（vi keybindings）
+echo "⚙️ Enabling vi mode in Zsh..."
+{
+    echo ""
+    echo "# Enable vi key bindings"
+    echo "bindkey -v"
+    echo "export KEYTIMEOUT=1"
+    echo "bindkey '^V' edit-command-line"
+} >> "$HOME/.zshrc"
+
+echo "🎯 Setup complete! Please restart your terminal or run 'exec zsh'."

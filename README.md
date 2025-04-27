@@ -38,14 +38,14 @@ sh setup-p10k.sh
 
 # Installation
 
-## Step 0
+## Step0
 Install git
 ```shell
 apt update
 apt install -y git
 ```
 
-## Step 1
+## Step1
 Cloning the project
 ```shell
 git clone https://github.com/VincentLi1216/setup_scripts.git
