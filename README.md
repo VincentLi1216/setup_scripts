@@ -37,6 +37,14 @@ sh setup-p10k.sh
 `setup.zsh` will detect whether the ssh-key exists or not, if not then automatically generate it.
 
 # Installation
+
+## Step 0
+Install git
+```shell
+apt update
+apt install -y git
+```
+
 ## Step 1
 Cloning the project
 ```shell

@@ -4,4 +4,3 @@ FROM debian:latest
 WORKDIR /app 
 COPY . .
 RUN chmod +x setup.sh
-CMD ['setup.sh']
