@@ -68,13 +68,5 @@ bash setup.sh
 Setting up the `zsh`, and `oh my Zsh`.
 ```shell
 bash setup-zsh.sh
-``` 
-
-```shell
-bash setup-oh-my-zsh.sh
-```
----
-Setting up `PowerLevel10K`.
-```shell
 bash setup-p10k.sh
-```
+``` 
