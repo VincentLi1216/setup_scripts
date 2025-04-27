@@ -1,62 +1,82 @@
 #!/bin/bash
 
-# 定義你的配置檔案目錄為當前目錄
-CONFIG_DIR=./
+# Define config directory as the current directory
+CONFIG_DIR=$(pwd)
 
+# Make sure the setup scripts are executable
 chmod +x setup-zsh.sh setup-oh-my-zsh.sh setup-p10k.sh
 
-# 更新系統並安裝必要套件
-echo "Updating system and installing necessary packages..."
-sudo apt update && sudo apt upgrade -y
-sudo apt install -y vim git tmux curl python3 python3-pip
+# Function to install packages based on OS
+install_packages() {
+    echo "Detecting OS and installing necessary packages..."
 
-# 檢查並複製 Vimrc 設定
-if [ -f "$CONFIG_DIR/vimrc" ]; then
-  echo "Appending Vimrc from $CONFIG_DIR to ~/.vimrc..."
-  cat "$CONFIG_DIR/vimrc" >> ~/.vimrc
-else
-  echo "$CONFIG_DIR/vimrc does not exist."
-fi
+    if [ -f /etc/alpine-release ]; then
+        # Alpine Linux
+        echo "Alpine Linux detected."
+        sudo apk update
+        sudo apk add --no-cache git zsh vim tmux curl python3 py3-pip
+    elif [ -f /etc/debian_version ]; then
+        # Debian or Ubuntu
+        echo "Debian/Ubuntu detected."
+        sudo apt update && sudo apt upgrade -y
+        sudo apt install -y git zsh vim tmux curl python3 python3-pip
+    elif [ "$(uname)" == "Darwin" ]; then
+        # macOS
+        echo "macOS detected."
+        # Install Homebrew if not installed
+        if ! command -v brew &> /dev/null; then
+            echo "Homebrew not found. Installing Homebrew..."
+            /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+        fi
+        brew update
+        brew install git zsh vim tmux curl python3
+    else
+        echo "Unsupported OS. Exiting."
+        exit 1
+    fi
+}
 
+# Install necessary packages
+install_packages
 
-# 設置 Git 並將 Gitconfig 加入系統 Gitconfig 的最後面
+# Function to append configuration if the file exists
+append_config() {
+    local src_file="$1"
+    local dest_file="$2"
+
+    if [ -f "$CONFIG_DIR/$src_file" ]; then
+        echo "Appending $src_file to $dest_file..."
+        cat "$CONFIG_DIR/$src_file" >> "$dest_file"
+    else
+        echo "$CONFIG_DIR/$src_file does not exist."
+    fi
+}
+
+# Set Git editor to vim
 export GIT_EDITOR=vim
-if [ -f "$CONFIG_DIR/gitconfig" ]; then
-  echo "Appending Gitconfig from $CONFIG_DIR to ~/.gitconfig..."
-  cat "$CONFIG_DIR/gitconfig" >> ~/.gitconfig
-else
-  echo "$CONFIG_DIR/gitconfig does not exist."
-fi
 
-# 檢查並複製 Tmux 設定
-if [ -f "$CONFIG_DIR/tmux.conf" ]; then
-  echo "Appending Tmux config from $CONFIG_DIR to ~/.tmux.conf..."
-  cat "$CONFIG_DIR/tmux.conf" >> ~/.tmux.conf
-else
-  echo "$CONFIG_DIR/tmux.conf does not exist."
-fi
+# Append configs
+append_config "vimrc" "$HOME/.vimrc"
+append_config "gitconfig" "$HOME/.gitconfig"
+append_config "tmux.conf" "$HOME/.tmux.conf"
+append_config "aliases" "$HOME/.bashrc"
 
-# 檢查並複製別名設定
+# Reload bashrc if aliases were appended
 if [ -f "$CONFIG_DIR/aliases" ]; then
-  echo "Appending aliases from $CONFIG_DIR to ~/.bashrc..."
-  cat "$CONFIG_DIR/aliases" >> ~/.bashrc
-  source ~/.bashrc
-else
-  echo "$CONFIG_DIR/aliases does not exist."
+    source "$HOME/.bashrc"
 fi
 
-# ssh key
-if [ ! -f ~/.ssh/id_rsa ]; then
-  echo "Generating SSH key..."
-  ssh-keygen -t rsa -b 4096 -C "your_email@example.com"
-  eval "$(ssh-agent -s)"
-  ssh-add ~/.ssh/id_rsa
-  echo "Your public SSH key:"
-  cat ~/.ssh/id_rsa.pub
+# Setup SSH key if not exists
+if [ ! -f "$HOME/.ssh/id_rsa" ]; then
+    echo "Generating SSH key..."
+    ssh-keygen -t rsa -b 4096 -C "your_email@example.com"
+    eval "$(ssh-agent -s)"
+    ssh-add "$HOME/.ssh/id_rsa"
+    echo "Your public SSH key:"
+    cat "$HOME/.ssh/id_rsa.pub"
 else
-  echo "SSH key already exists."
+    echo "SSH key already exists."
 fi
 
-
-# 安裝完成提示
-echo "Development environment setup complete!"
+# Final message
+echo "✅ Development environment setup complete!"
