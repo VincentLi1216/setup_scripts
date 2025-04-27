@@ -61,20 +61,20 @@ chmod +x setup.sh
 ## Step3
 Run the Scripts.
 ```shell
-sh setup.sh
+bash setup.sh
 ```
 
 ## Step4(Optional)
 Setting up the `zsh`, and `oh my Zsh`.
 ```shell
-sh setup-zsh.sh
+bash setup-zsh.sh
 ``` 
 
 ```shell
-sh setup-oh-my-zsh.sh
+bash setup-oh-my-zsh.sh
 ```
 ---
 Setting up `PowerLevel10K`.
 ```shell
-sh setup-p10k.sh
+bash setup-p10k.sh
 ```
